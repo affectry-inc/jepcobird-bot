@@ -1,7 +1,7 @@
 {
-  "name": "botkit",
-  "version": "0.2.2",
-  "description": "Building blocks for Building Bots",
+  "name": "jepcobird",
+  "version": "0.0.1",
+  "description": "Jepcobird bot for slack",
   "main": "lib/Botkit.js",
   "dependencies": {
     "async": "^2.0.0-rc.5",
@@ -28,19 +28,22 @@
     "pretest": "jscs ./lib/",
     "test": "mocha tests/*.js"
   },
+  "engine": {
+    "node": "v5.10.1"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/howdyai/botkit.git"
+    "url": "https://github.com/affectry-inc/jepcobird-bot.git"
   },
   "bugs": {
-    "url": "https://github.com/howdyai/botkit/issues"
+    "url": "https://github.com/affectry-inc/jepcobird-bot/issues"
   },
-  "homepage": "http://howdy.ai/botkit",
+  "homepage": "http://jepco.org",
   "keywords": [
     "bots",
     "chatbots",
     "slack"
   ],
-  "author": "ben@xoxco.com",
+  "author": "xiz-tky",
   "license": "MIT"
 }
