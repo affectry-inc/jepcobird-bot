@@ -73,6 +73,7 @@ var Botkit = require('./lib/Botkit.js');
 var os = require('os');
 
 var controller = Botkit.slackbot({
+    json_file_store: './db/jepcobird_bot/',
     debug: true
 });
 
@@ -80,6 +81,14 @@ var bot = controller.spawn({
     token: process.env.token
 }).startRTM();
 
+
+controller.hears('^(sushi|すし|スシ|寿司)$', 'direct_message,direct_mention,mention', function(bot, message) {
+  bot.reply(message, '僕も寿司が好きです');
+});
+
+controller.hears('(天気は？|天気を教えて)', 'direct_message,direct_mention,mention', function(bot, message) {
+  bot.reply(message, '東京の天気は、晴れです');
+});
 
 controller.hears(['hello', 'hi'], 'direct_message,direct_mention,mention', function(bot, message) {
 
