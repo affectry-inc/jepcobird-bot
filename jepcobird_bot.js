@@ -63,7 +63,6 @@ This bot demonstrates many of the core features of Botkit:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-
 if (!process.env.token) {
     console.log('Error: Specify token in environment');
     process.exit(1);
@@ -81,13 +80,123 @@ var bot = controller.spawn({
     token: process.env.token
 }).startRTM();
 
-
 controller.hears('^(sushi|すし|スシ|寿司)$', 'direct_message,direct_mention,mention', function(bot, message) {
-  bot.reply(message, '僕も寿司が好きです');
+    bot.reply(message, '僕も寿司が好きです');
 });
 
-controller.hears('(天気は？|天気を教えて)', 'direct_message,direct_mention,mention', function(bot, message) {
-  bot.reply(message, '東京の天気は、晴れです');
+controller.hears('(天気は？|天気教えて|天気を教えて|天気わかる？)', 'direct_message,direct_mention,mention', function(bot, message) {
+    console.dir(message);
+    var text = message['text'];
+    var day = 0;
+    var city_id = 0;
+
+    if (text.match(/明日/)){
+        day = 1;
+    } else if (text.match(/明後日/)) {
+        day = 2;
+    }
+
+    city_id = cityIdOf(text);
+    if (city_id > 0) {
+        weatherHacks(day, city_id, function(reply){
+            bot.reply(message, reply);
+        });
+    } else {
+        bot.startConversation(message, function(err, convo) {
+            if (!err) {
+                convo.ask('どこの天気？', function(response, convo) {
+                    city_id = cityIdOf(response.text);
+                    if (city_id > 0) {
+                        convo.next();
+                    } else {
+                        convo.stop();
+                    };
+                });
+
+                convo.on('end', function(convo) {
+                    if (convo.status == 'completed') {
+                        weatherHacks(day, city_id, function(reply){
+                            bot.reply(message, reply);
+                        });
+                    } else {
+                        bot.reply(message, 'どこそれ？知らないから自分で調べて。');
+                    }
+                });
+            }
+        });
+    }
+});
+
+function cityIdOf(text) {
+    if (text.match(/(東京|港区|中央区|新宿|渋谷|赤坂)/)){
+        city_id = 130010;
+    } else if (text.match(/(神奈川|横浜)/)){
+        city_id = 140010;
+    } else if (text.match(/大阪/)) {
+        city_id = 270000;
+    } else if (text.match(/京都/)) {
+        city_id = 260010;
+    } else if (text.match(/(愛知|名古屋)/)) {
+        city_id = 230010;
+    } else if (text.match(/(沖縄|那覇)/)) {
+        city_id = 471010;
+    } else {
+        city_id = -1;
+    }
+    return city_id;
+};
+
+function weatherHacks(day, city_id, callback) {
+    var reply = '';
+    var request = require('request');
+    var options = {
+      url : 'http://weather.livedoor.com/forecast/webservice/json/v1?city=' + city_id,
+      json: true
+    }
+
+    request.get(options, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        console.log(body);
+
+        var title   = body['title'];
+        var text    = body['description']['text'];
+        var link    = body['link'];
+        var weather = body['forecasts'][day];
+
+        if (!weather) {
+          callback({'text': '天気わかんないや。へへ'});
+          return
+        }
+
+        var attachments = [{
+            'fallback': 'Display weather from Weather Hacks',
+            'title': title,
+            'title_link': link,
+            'text': text,
+            'image_url': weather['image']['url'],
+            'color': "#7CD197"
+        }];
+
+        reply = {
+          'text': weather['dateLabel'] + 'の' + title + 'は' + weather['telop'] + 'だってさ。',
+          'attachments': attachments
+        };
+      } else {
+        console.log('error: '+ response.statusCode);
+        reply = {
+          'text': '天気わかんなかった。。へへ'
+        };
+      };
+      callback(reply);
+    });
+};
+
+controller.hears('', 'mention', function(bot, message) {
+    bot.reply(message, '呼んだ？');
+});
+
+controller.hears('自己紹介', 'direct_mention', function(bot, message) {
+    bot.reply(message, 'おいらはJepcobirdだお。');
 });
 
 controller.hears(['hello', 'hi'], 'direct_message,direct_mention,mention', function(bot, message) {
