@@ -84,7 +84,7 @@ controller.hears('^(sushi|すし|スシ|寿司)$', 'direct_message,direct_mentio
     bot.reply(message, '僕も寿司が好きです');
 });
 
-controller.hears('(天気は？|天気教えて|天気を教えて|天気わかる？)', 'direct_message,direct_mention,mention', function(bot, message) {
+controller.hears('(天気は？|天気教えて|天気を教えて|天気わかる？)', 'direct_message,direct_mention', function(bot, message) {
     console.dir(message);
     var text = message['text'];
     var day = 0;
