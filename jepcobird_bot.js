@@ -73,7 +73,7 @@ var os = require('os');
 
 var controller = Botkit.slackbot({
     json_file_store: './db/jepcobird_bot/',
-    debug: true
+    debug: false
 });
 
 var bot = controller.spawn({
